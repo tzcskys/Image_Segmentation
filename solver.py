@@ -191,63 +191,65 @@ class Solver(object):
 				
 				
 				#===================================== Validation ====================================#
-				self.unet.train(False)
-				self.unet.eval()
+				if epoch % 10 == 0:
 
-				acc = 0.	# Accuracy
-				SE = 0.		# Sensitivity (Recall)
-				SP = 0.		# Specificity
-				PC = 0. 	# Precision
-				F1 = 0.		# F1 Score
-				JS = 0.		# Jaccard Similarity
-				DC = 0.		# Dice Coefficient
-				length=0
-				for i, (images, GT) in enumerate(self.valid_loader):
+					self.unet.train(False)
+					self.unet.eval()
 
-					images = images.to(self.device)
-					GT = GT.to(self.device)
-					SR = F.sigmoid(self.unet(images))
-					acc += get_accuracy(SR,GT)
-					SE += get_sensitivity(SR,GT)
-					SP += get_specificity(SR,GT)
-					PC += get_precision(SR,GT)
-					F1 += get_F1(SR,GT)
-					JS += get_JS(SR,GT)
-					DC += get_DC(SR,GT)
-						
-					length += images.size(0)
-					
-				acc = acc/length
-				SE = SE/length
-				SP = SP/length
-				PC = PC/length
-				F1 = F1/length
-				JS = JS/length
-				DC = DC/length
-				unet_score = JS + DC
+					acc = 0.	# Accuracy
+					SE = 0.		# Sensitivity (Recall)
+					SP = 0.		# Specificity
+					PC = 0. 	# Precision
+					F1 = 0.		# F1 Score
+					JS = 0.		# Jaccard Similarity
+					DC = 0.		# Dice Coefficient
+					length=0
+					for i, (images, GT) in enumerate(self.valid_loader):
 
-				print('[Validation] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, JS: %.4f, DC: %.4f'%(acc,SE,SP,PC,F1,JS,DC))
-				
-				'''
-				torchvision.utils.save_image(images.data.cpu(),
-											os.path.join(self.result_path,
-														'%s_valid_%d_image.png'%(self.model_type,epoch+1)))
-				torchvision.utils.save_image(SR.data.cpu(),
-											os.path.join(self.result_path,
-														'%s_valid_%d_SR.png'%(self.model_type,epoch+1)))
-				torchvision.utils.save_image(GT.data.cpu(),
-											os.path.join(self.result_path,
-														'%s_valid_%d_GT.png'%(self.model_type,epoch+1)))
-				'''
+						images = images.to(self.device)
+						GT = GT.to(self.device)
+						SR = F.sigmoid(self.unet(images))
+						acc += get_accuracy(SR,GT)
+						SE += get_sensitivity(SR,GT)
+						SP += get_specificity(SR,GT)
+						PC += get_precision(SR,GT)
+						F1 += get_F1(SR,GT)
+						JS += get_JS(SR,GT)
+						DC += get_DC(SR,GT)
+
+						length += images.size(0)
+
+					acc = acc/length
+					SE = SE/length
+					SP = SP/length
+					PC = PC/length
+					F1 = F1/length
+					JS = JS/length
+					DC = DC/length
+					unet_score = JS + DC
+
+					print('[Validation] Acc: %.4f, SE: %.4f, SP: %.4f, PC: %.4f, F1: %.4f, JS: %.4f, DC: %.4f'%(acc,SE,SP,PC,F1,JS,DC))
+
+					'''
+					torchvision.utils.save_image(images.data.cpu(),
+												os.path.join(self.result_path,
+															'%s_valid_%d_image.png'%(self.model_type,epoch+1)))
+					torchvision.utils.save_image(SR.data.cpu(),
+												os.path.join(self.result_path,
+															'%s_valid_%d_SR.png'%(self.model_type,epoch+1)))
+					torchvision.utils.save_image(GT.data.cpu(),
+												os.path.join(self.result_path,
+															'%s_valid_%d_GT.png'%(self.model_type,epoch+1)))
+					'''
 
 
-				# Save Best U-Net model
-				if unet_score > best_unet_score:
-					best_unet_score = unet_score
-					best_epoch = epoch
-					best_unet = self.unet.state_dict()
-					print('Best %s model score : %.4f'%(self.model_type,best_unet_score))
-					torch.save(best_unet,unet_path)
+					# Save Best U-Net model
+					if unet_score > best_unet_score:
+						best_unet_score = unet_score
+						best_epoch = epoch
+						best_unet = self.unet.state_dict()
+						print('Best %s model score : %.4f'%(self.model_type,best_unet_score))
+						torch.save(best_unet,unet_path)
 					
 			#===================================== Test ====================================#
 			del self.unet

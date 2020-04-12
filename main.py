@@ -23,19 +23,19 @@ def main(config):
     if not os.path.exists(config.result_path):
         os.makedirs(config.result_path)
     
-    lr = random.random()*0.0005 + 0.0000005
+    # lr = random.random()*0.0005 + 0.0000005
     augmentation_prob= random.random()*0.7
-    epoch = random.choice([100,150])
-    decay_ratio = random.random()*0.8
-    decay_epoch = int(epoch*decay_ratio)
+    # epoch = random.choice([100,150])
+    # decay_ratio = random.random()*0.8
+    # decay_epoch = int(epoch*decay_ratio)
 
     config.augmentation_prob = augmentation_prob
-    config.num_epochs = epoch
-    config.lr = lr
-    config.num_epochs_decay = decay_epoch
+    config.num_epochs = 150
+    config.lr = 0.00005
+    config.num_epochs_decay = 50
 
     print(config)
-        
+
     # train_loader = get_loader(image_path=config.train_path,
     #                         image_size=config.image_size,
     #                         batch_size=config.batch_size,
@@ -68,7 +68,6 @@ def main(config):
 
     solver = Solver(config, train_loader, valid_loader, test_loader)
 
-    
     # Train and sample the images
     if config.mode == 'train':
         solver.train()
