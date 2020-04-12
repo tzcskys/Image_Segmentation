@@ -133,4 +133,7 @@ dmypy.json
 data/
 
 # data file
-.csv
+*.csv
+
+# pycharm setting
+.idea/
